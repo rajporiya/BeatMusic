@@ -1,6 +1,13 @@
 import React, { createContext, useContext, useState, useEffect, useRef } from "react";
 import type { Song } from "../type/movie-name";
 
+export interface UserPlaylist {
+  id: string;
+  name: string;
+  songs: Song[];
+  image?: string;
+}
+
 interface PlaybackContextType {
   currentSong: Song | null;
   isPlaying: boolean;
@@ -14,6 +21,11 @@ interface PlaybackContextType {
   seekTo: (time: number) => void;
   playNext: () => void;
   playPrevious: () => void;
+  playlists: UserPlaylist[];
+  createPlaylist: (name?: string) => string | undefined;
+  addSongToPlaylist: (playlistId: string, song: Song) => void;
+  removePlaylist: (playlistId: string) => void;
+  toggleLikeSong: (song: Song) => void;
 }
 
 const PlaybackContext = createContext<PlaybackContextType | undefined>(undefined);
@@ -25,8 +37,46 @@ export const PlaybackProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [queue, setQueue] = useState<Song[]>([]);
+  
+  // Playlists state initialized from localStorage with some pre-populated Liked Songs
+  const [playlists, setPlaylists] = useState<UserPlaylist[]>(() => {
+    const saved = localStorage.getItem("beatmusic_playlists");
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {
+        console.error("Error parsing saved playlists:", e);
+      }
+    }
+    return [
+      {
+        id: "liked-songs",
+        name: "Liked Songs",
+        songs: [
+          {
+            id: 1,
+            title: "Radhimaa - From \"Think Indie\"",
+            artist: "Sai Abhyankkar, Nargis Teji, Asma Taji, Vivek",
+            image: "https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?w=300&h=300&fit=crop",
+          },
+          {
+            id: 2,
+            title: "Tera Mera Rishta - New Version",
+            artist: "Mithoon, Pritam, Mustafa Zahid, Sayeed Quadri",
+            image: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=300&h=300&fit=crop",
+          }
+        ],
+        image: "https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?w=300&h=300&fit=crop"
+      }
+    ];
+  });
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  // Sync playlists to localStorage
+  useEffect(() => {
+    localStorage.setItem("beatmusic_playlists", JSON.stringify(playlists));
+  }, [playlists]);
 
   // Initialize Audio Element on Mount
   useEffect(() => {
@@ -143,6 +193,75 @@ export const PlaybackProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }
   };
 
+  const createPlaylist = (name?: string) => {
+    const playlistName = name || window.prompt("Enter playlist name:") || `My Playlist #${playlists.length}`;
+    if (!playlistName.trim()) return undefined;
+    const newId = `playlist-${Date.now()}`;
+    const newPlaylist: UserPlaylist = {
+      id: newId,
+      name: playlistName,
+      songs: [],
+      image: "/album_cover.jpg"
+    };
+    setPlaylists((prev) => [...prev, newPlaylist]);
+    return newId;
+  };
+
+  const addSongToPlaylist = (playlistId: string, song: Song) => {
+    setPlaylists((prev) =>
+      prev.map((pl) => {
+        if (pl.id === playlistId) {
+          if (pl.songs.some((s) => s.id === song.id)) {
+            alert(`Song is already in "${pl.name}"!`);
+            return pl;
+          }
+          return {
+            ...pl,
+            songs: [...pl.songs, song],
+            image: pl.songs.length === 0 ? song.image : pl.image
+          };
+        }
+        return pl;
+      })
+    );
+  };
+
+  const removePlaylist = (playlistId: string) => {
+    if (playlistId === "liked-songs") {
+      alert("Cannot delete the Liked Songs playlist.");
+      return;
+    }
+    if (window.confirm("Are you sure you want to delete this playlist?")) {
+      setPlaylists((prev) => prev.filter((pl) => pl.id !== playlistId));
+    }
+  };
+
+  const toggleLikeSong = (song: Song) => {
+    setPlaylists((prev) =>
+      prev.map((pl) => {
+        if (pl.id === "liked-songs") {
+          const exists = pl.songs.some((s) => s.id === song.id);
+          if (exists) {
+            const updatedSongs = pl.songs.filter((s) => s.id !== song.id);
+            return {
+              ...pl,
+              songs: updatedSongs,
+              image: updatedSongs.length > 0 ? updatedSongs[0].image : "/album_cover.jpg"
+            };
+          } else {
+            const updatedSongs = [...pl.songs, song];
+            return {
+              ...pl,
+              songs: updatedSongs,
+              image: song.image
+            };
+          }
+        }
+        return pl;
+      })
+    );
+  };
+
   return (
     <PlaybackContext.Provider
       value={{
@@ -158,6 +277,11 @@ export const PlaybackProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         seekTo,
         playNext,
         playPrevious,
+        playlists,
+        createPlaylist,
+        addSongToPlaylist,
+        removePlaylist,
+        toggleLikeSong,
       }}
     >
       {children}
@@ -172,3 +296,4 @@ export const usePlayback = () => {
   }
   return context;
 };
+
