@@ -1,6 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import { House, Search, ArrowDownToLine, Bell, Users } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
+import BeatMusicLogo from "./BeatMusicLogo";
 
 const Navbar = () => {
   const { user, logout } = useAuth();
@@ -10,15 +11,8 @@ const Navbar = () => {
     <div className="h-16 bg-black flex items-center justify-between px-6 select-none shrink-0 z-50">
       {/* Left Area - Logo only (no text) */}
       <div className="flex items-center">
-        <Link to="/" className="text-white hover:text-[#1db954] transition-colors flex items-center">
-          {/* Official Spotify Wave SVG Icon */}
-          <svg
-            viewBox="0 0 24 24"
-            fill="currentColor"
-            className="w-9 h-9 text-white hover:scale-105 transition-transform duration-200"
-          >
-            <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm4.586 14.424c-.18.295-.565.387-.86.207-2.377-1.454-5.37-1.783-8.892-.982-.336.076-.67-.135-.746-.472-.076-.336.135-.67.472-.746 3.854-.878 7.15-.502 9.82 1.134.295.18.387.565.207.86zm1.226-2.723c-.226.367-.707.487-1.074.26-2.72-1.672-6.87-2.157-10.082-1.182-.413.125-.847-.107-.972-.52-.125-.413.107-.847.52-.972 3.676-1.116 8.243-.573 11.348 1.336.367.227.488.708.26 1.078zm.106-2.836C14.492 8.78 8.793 8.59 5.483 9.595c-.507.153-1.04-.135-1.194-.64-.154-.507.135-1.04.64-1.195 3.8-1.153 10.103-.928 14.07 1.43.456.27.608.86.338 1.317-.27.457-.86.61-1.317.338z" />
-          </svg>
+        <Link to="/" className="flex items-center">
+          <BeatMusicLogo className="w-10 h-10 hover:scale-105 transition-transform duration-200 cursor-pointer" />
         </Link>
       </div>
 

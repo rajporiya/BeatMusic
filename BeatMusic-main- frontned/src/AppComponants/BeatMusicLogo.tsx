@@ -1,7 +1,7 @@
-const BeatMusicLogo = ({className= ""}) => {
+const BeatMusicLogo = ({ className = "" }) => {
   return (
     <div className={className}>
-      <img src="./Animation/title.svg" alt=""  className=''/>
+      <img src="/Animation/title.svg" alt="BeatMusic Logo" className="w-full h-full object-contain" />
     </div>
   )
 }

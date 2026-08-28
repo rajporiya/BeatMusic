@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Play, Pause } from "lucide-react";
-import type { Artist } from "../type/movie-name";
+import type { Artist } from "@/type/movie-name";
 
 type ArtistsGridProps = {
   artistsList: Artist[];

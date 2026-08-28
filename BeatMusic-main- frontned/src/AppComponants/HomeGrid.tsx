@@ -1,8 +1,8 @@
 import { Play, Pause } from "lucide-react";
 import { useState, useEffect } from "react";
-import { usePlayback } from "../context/PlaybackContext";
-import { useAuth } from "../context/AuthContext";
-import type { Song } from "../type/movie-name";
+import { usePlayback } from "@/context/PlaybackContext";
+import { useAuth } from "@/context/AuthContext";
+import type { Song } from "@/type/movie-name";
 
 interface GridItem {
   id: number;
